@@ -55,8 +55,6 @@ class _AdminScoreManagementScreenState extends State<AdminScoreManagementScreen>
     final ccController = TextEditingController(text: existingResult?.diemChuyenCan.toString() ?? '');
     final ktController = TextEditingController(text: existingResult?.diemKiemTra.toString() ?? '');
     final thiController = TextEditingController(text: existingResult?.diemThi.toString() ?? '');
-    final tkController = TextEditingController(text: existingResult?.diemTongKet.toString() ?? '');
-    final chuController = TextEditingController(text: existingResult?.diemChu ?? '');
 
     showDialog(
       context: context,
@@ -83,17 +81,6 @@ class _AdminScoreManagementScreenState extends State<AdminScoreManagementScreen>
                 decoration: const InputDecoration(labelText: 'Điểm thi'),
                 keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: tkController,
-                decoration: const InputDecoration(labelText: 'Điểm tổng kết'),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: chuController,
-                decoration: const InputDecoration(labelText: 'Điểm chữ (A, B, C...)'),
-              ),
             ],
           ),
         ),
@@ -111,8 +98,6 @@ class _AdminScoreManagementScreenState extends State<AdminScoreManagementScreen>
                 'diemChuyenCan': double.tryParse(ccController.text),
                 'diemKiemTra': double.tryParse(ktController.text),
                 'diemThi': double.tryParse(thiController.text),
-                'diemTongKet': double.tryParse(tkController.text),
-                'diemChu': chuController.text,
               };
 
               bool success;
@@ -174,7 +159,7 @@ class _AdminScoreManagementScreenState extends State<AdminScoreManagementScreen>
                             const SizedBox(height: 4),
                             if (hasScore)
                               Text(
-                                'Tổng kết: ${result.diemTongKet} (${result.diemChu})',
+                                'Tổng kết: ${result.diemTongKet} • Chữ: ${result.diemChu} • Hệ 4: ${result.diemHe4}',
                                 style: TextStyle(
                                   color: AppTheme.primaryBlue,
                                   fontWeight: FontWeight.bold,

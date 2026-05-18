@@ -19,6 +19,7 @@ public class AdminSubjectController {
 
     private final SubjectRepository subjectRepository;
     private final SemesterRepository semesterRepository;
+    private final com.hau.student.repository.StudentResultRepository studentResultRepository;
 
     @GetMapping
     public ResponseEntity<List<Subject>> getAllSubjects() {
@@ -50,17 +51,44 @@ public class AdminSubjectController {
     }
 
     @PutMapping("/{maMonHoc}")
+    @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> updateSubject(@PathVariable String maMonHoc, @RequestBody Map<String, Object> payload) {
         return subjectRepository.findById(maMonHoc).map(subject -> {
-            if (payload.containsKey("tenMonHoc")) subject.setTenMonHoc((String) payload.get("tenMonHoc"));
-            if (payload.containsKey("soTinChi")) subject.setSoTinChi((Integer) payload.get("soTinChi"));
+            String newMaMonHoc = payload.containsKey("maMonHoc") ? (String) payload.get("maMonHoc") : maMonHoc;
             
-            if (payload.containsKey("idHocKy") && payload.get("idHocKy") != null) {
-                Integer idHocKy = (Integer) payload.get("idHocKy");
-                semesterRepository.findById(idHocKy).ifPresent(subject::setSemester);
+            if (!maMonHoc.equals(newMaMonHoc)) {
+                if (subjectRepository.existsById(newMaMonHoc)) {
+                    throw new RuntimeException("Mã môn học mới đã tồn tại!");
+                }
+                
+                Subject newSubject = new Subject();
+                newSubject.setMaMonHoc(newMaMonHoc);
+                newSubject.setTenMonHoc(payload.containsKey("tenMonHoc") ? (String) payload.get("tenMonHoc") : subject.getTenMonHoc());
+                newSubject.setSoTinChi(payload.containsKey("soTinChi") ? (Integer) payload.get("soTinChi") : subject.getSoTinChi());
+                
+                if (payload.containsKey("idHocKy") && payload.get("idHocKy") != null) {
+                    Integer idHocKy = (Integer) payload.get("idHocKy");
+                    semesterRepository.findById(idHocKy).ifPresent(newSubject::setSemester);
+                } else {
+                    newSubject.setSemester(subject.getSemester());
+                }
+                
+                subjectRepository.save(newSubject);
+                studentResultRepository.updateSubjectId(maMonHoc, newMaMonHoc);
+                subjectRepository.delete(subject);
+                
+                return ResponseEntity.ok(newSubject);
+            } else {
+                if (payload.containsKey("tenMonHoc")) subject.setTenMonHoc((String) payload.get("tenMonHoc"));
+                if (payload.containsKey("soTinChi")) subject.setSoTinChi((Integer) payload.get("soTinChi"));
+                
+                if (payload.containsKey("idHocKy") && payload.get("idHocKy") != null) {
+                    Integer idHocKy = (Integer) payload.get("idHocKy");
+                    semesterRepository.findById(idHocKy).ifPresent(subject::setSemester);
+                }
+                
+                return ResponseEntity.ok(subjectRepository.save(subject));
             }
-            
-            return ResponseEntity.ok(subjectRepository.save(subject));
         }).orElse(ResponseEntity.notFound().build());
     }
 

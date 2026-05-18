@@ -27,7 +27,7 @@ class _AdminClassFlowScreenState extends State<AdminClassFlowScreen> {
   Future<void> _loadClasses() async {
     final data = await _apiService.getClasses();
     setState(() {
-      _classes = data;
+      _classes = data.where((c) => c != 'ADMIN' && c.isNotEmpty).toList();
       _isLoading = false;
     });
   }

@@ -88,13 +88,16 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
             const SizedBox(height: 8),
             Text('Số tín chỉ: ${result.soTinChi}'),
             const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              spacing: 16.0,
+              runSpacing: 16.0,
+              alignment: WrapAlignment.spaceBetween,
               children: [
                 _buildScoreItem('Chuyên cần', result.diemChuyenCan),
                 _buildScoreItem('Kiểm tra', result.diemKiemTra),
                 _buildScoreItem('Thi', result.diemThi),
                 _buildScoreItem('Tổng kết', result.diemTongKet, isBold: true),
+                _buildScoreItem('Hệ 4', result.diemHe4, isBold: true),
               ],
             ),
           ],

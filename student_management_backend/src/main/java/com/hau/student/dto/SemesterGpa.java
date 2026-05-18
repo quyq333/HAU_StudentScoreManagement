@@ -5,15 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class GpaResponse {
-    private double currentGpa;
-    private double cumulativeGpa;
-    private int totalCredits;
-    private List<SemesterGpa> semesterGpas;
+public class SemesterGpa {
+    private String semesterName;
+    private double gpa;
 }

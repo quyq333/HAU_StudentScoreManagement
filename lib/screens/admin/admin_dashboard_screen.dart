@@ -5,7 +5,8 @@ import '../login_screen.dart';
 import 'manage_students_screen.dart';
 import 'manage_subjects_screen.dart';
 import 'manage_semesters_screen.dart';
-import 'admin_semester_flow_screen.dart'; // We will create this
+import 'admin_semester_flow_screen.dart';
+import 'admin_subject_semester_flow_screen.dart';
 import '../../utils/theme.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -79,7 +80,7 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'Khung chương trình',
                   icon: Icons.book,
                   color: const Color(0xFF43A047), // Green
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageSubjectsScreen())),
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSubjectSemesterFlowScreen())),
                 ),
                 _buildMenuCard(
                   context,

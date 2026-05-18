@@ -49,4 +49,19 @@ public class StudentResult {
 
     @Column(name = "DiemChu", length = 5)
     private String diemChu;
+
+    @Column(name = "DiemHe4")
+    private Double diemHe4;
+
+    public Double getDiemHe4() {
+        if (this.diemHe4 != null) {
+            return this.diemHe4;
+        }
+        if (this.diemTongKet == null) return null;
+        if (this.diemTongKet >= 8.5) return 4.0;
+        if (this.diemTongKet >= 7.0) return 3.0;
+        if (this.diemTongKet >= 5.5) return 2.0;
+        if (this.diemTongKet >= 4.0) return 1.0;
+        return 0.0;
+    }
 }

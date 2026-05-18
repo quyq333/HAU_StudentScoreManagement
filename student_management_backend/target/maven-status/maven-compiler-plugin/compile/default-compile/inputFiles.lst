@@ -3,6 +3,7 @@ C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_manag
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\controller\SubjectController.java
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\repository\StudentRepository.java
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\security\CustomUserDetails.java
+C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\dto\SemesterGpa.java
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\dto\GpaResponse.java
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\controller\admin\AdminStudentController.java
 C:\Users\Admin\OneDrive\Desktop\Mobile2\flutter_mobile_application\student_management_backend\src\main\java\com\hau\student\repository\StudentResultRepository.java

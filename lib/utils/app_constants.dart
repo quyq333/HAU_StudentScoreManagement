@@ -1,7 +1,7 @@
 class AppConstants {
   // Thay thế bằng địa chỉ IP của máy bạn nếu test trên thiết bị thật
   // 10.0.2.2 là localhost cho Android Emulator
-  static const String baseUrl = 'http://192.168.1.44:8080/api/v1';
+  static const String baseUrl = 'http://192.168.137.169:8080/api/v1';
 
   // API Endpoints
   static const String loginEndpoint = '/auth/login';

@@ -134,6 +134,7 @@ class SubjectDetailScreen extends StatelessWidget {
             _buildScoreTile('Giữa kỳ', result.diemKiemTra, Icons.assignment),
             _buildScoreTile('Cuối kỳ', result.diemThi, Icons.school),
             _buildScoreTile('Tổng kết', result.diemTongKet, Icons.stars, isHighlighted: true),
+            _buildScoreTile('Hệ 4', result.diemHe4, Icons.grade, isHighlighted: true),
           ],
         ),
       ],

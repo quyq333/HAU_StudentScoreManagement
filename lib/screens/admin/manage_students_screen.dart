@@ -11,29 +11,40 @@ class ManageStudentsScreen extends StatefulWidget {
 
 class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
   final AdminApiService _apiService = AdminApiService();
-  List<UserModel> _students = [];
+  List<UserModel> _allStudents = [];
+  List<String> _classes = [];
+  String? _selectedClass;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadStudents();
+    _loadData();
   }
 
-  Future<void> _loadStudents() async {
+  Future<void> _loadData() async {
     setState(() => _isLoading = true);
     final data = await _apiService.getStudents();
+    
+    final classes = data
+        .where((s) => s.lop != 'ADMIN' && s.role != 'ROLE_ADMIN' && s.lop.isNotEmpty)
+        .map((s) => s.lop)
+        .toSet()
+        .toList();
+    classes.sort();
+
     setState(() {
-      _students = data;
+      _allStudents = data;
+      _classes = classes;
       _isLoading = false;
     });
   }
 
-  void _showStudentDialog([UserModel? student]) {
+  void _showStudentDialog([UserModel? student, String? defaultClass]) {
     final isEditing = student != null;
     final maSVController = TextEditingController(text: student?.maSV);
     final hoTenController = TextEditingController(text: student?.hoTen);
-    final lopController = TextEditingController(text: student?.lop);
+    final lopController = TextEditingController(text: student?.lop ?? defaultClass);
     final passwordController = TextEditingController(); // Only used for creation or explicit change
     String role = student?.role ?? 'ROLE_STUDENT';
 
@@ -100,7 +111,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
 
               if (success) {
                 if (context.mounted) Navigator.pop(context);
-                _loadStudents();
+                _loadData();
               } else {
                 if (context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -119,7 +130,7 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
   void _deleteStudent(String maSV) async {
     final success = await _apiService.deleteStudent(maSV);
     if (success) {
-      _loadStudents();
+      _loadData();
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Không thể xóa sinh viên này (có thể do đã có điểm)')));
@@ -130,37 +141,89 @@ class _ManageStudentsScreenState extends State<ManageStudentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quản lý Sinh Viên')),
+      appBar: AppBar(
+        title: Text(_selectedClass == null ? 'Quản lý Sinh Viên' : 'Lớp $_selectedClass'),
+        leading: _selectedClass != null
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  setState(() {
+                    _selectedClass = null;
+                  });
+                },
+              )
+            : const BackButton(),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: _students.length,
-              itemBuilder: (context, index) {
-                final student = _students[index];
-                return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text(student.hoTen),
-                  subtitle: Text('${student.maSV} - Lớp: ${student.lop} - Role: ${student.role}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => _showStudentDialog(student),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteStudent(student.maSV),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+          : _selectedClass == null
+              ? _buildClassesList()
+              : _buildStudentsList(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showStudentDialog(),
+        onPressed: () => _showStudentDialog(null, _selectedClass),
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  Widget _buildClassesList() {
+    if (_classes.isEmpty) {
+      return const Center(child: Text('Chưa có lớp nào được tạo.'));
+    }
+    return ListView.builder(
+      itemCount: _classes.length,
+      itemBuilder: (context, index) {
+        final className = _classes[index];
+        final studentCount = _allStudents.where((s) => s.lop == className && s.role != 'ROLE_ADMIN').length;
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: ListTile(
+            leading: const CircleAvatar(
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.class_, color: Colors.white),
+            ),
+            title: Text('Lớp $className', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('$studentCount sinh viên'),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () {
+              setState(() {
+                _selectedClass = className;
+              });
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStudentsList() {
+    final studentsInClass = _allStudents.where((s) => s.lop == _selectedClass && s.role != 'ROLE_ADMIN').toList();
+    if (studentsInClass.isEmpty) {
+      return const Center(child: Text('Lớp này không có sinh viên nào.'));
+    }
+    return ListView.builder(
+      itemCount: studentsInClass.length,
+      itemBuilder: (context, index) {
+        final student = studentsInClass[index];
+        return ListTile(
+          leading: const CircleAvatar(child: Icon(Icons.person)),
+          title: Text(student.hoTen),
+          subtitle: Text('${student.maSV} - Lớp: ${student.lop} - Role: ${student.role}'),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit, color: Colors.blue),
+                onPressed: () => _showStudentDialog(student, _selectedClass),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteStudent(student.maSV),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Icon(Icons.school, size: 80, color: Colors.white),
                     const SizedBox(height: 16),
                     const Text(
-                      'HAU Portal',
+                      'HAU',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

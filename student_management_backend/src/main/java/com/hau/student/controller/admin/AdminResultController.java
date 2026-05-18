@@ -58,11 +58,7 @@ public class AdminResultController {
             result.setSubject(subject);
             result.setSemester(semester);
             
-            if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(Double.parseDouble(payload.get("diemChuyenCan").toString()));
-            if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(Double.parseDouble(payload.get("diemKiemTra").toString()));
-            if (payload.containsKey("diemThi")) result.setDiemThi(Double.parseDouble(payload.get("diemThi").toString()));
-            if (payload.containsKey("diemTongKet")) result.setDiemTongKet(Double.parseDouble(payload.get("diemTongKet").toString()));
-            if (payload.containsKey("diemChu")) result.setDiemChu((String) payload.get("diemChu"));
+            calculateAndSetScores(result, payload);
 
             return ResponseEntity.ok(studentResultRepository.save(result));
         } catch (Exception e) {
@@ -74,11 +70,7 @@ public class AdminResultController {
     public ResponseEntity<?> updateResult(@PathVariable Integer id, @RequestBody Map<String, Object> payload) {
         return studentResultRepository.findById(id).map(result -> {
             try {
-                if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(Double.parseDouble(payload.get("diemChuyenCan").toString()));
-                if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(Double.parseDouble(payload.get("diemKiemTra").toString()));
-                if (payload.containsKey("diemThi")) result.setDiemThi(Double.parseDouble(payload.get("diemThi").toString()));
-                if (payload.containsKey("diemTongKet")) result.setDiemTongKet(Double.parseDouble(payload.get("diemTongKet").toString()));
-                if (payload.containsKey("diemChu")) result.setDiemChu((String) payload.get("diemChu"));
+                calculateAndSetScores(result, payload);
                 
                 return ResponseEntity.ok(studentResultRepository.save(result));
             } catch (Exception e) {
@@ -93,5 +85,41 @@ public class AdminResultController {
             studentResultRepository.delete(result);
             return ResponseEntity.ok().build();
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    private void calculateAndSetScores(StudentResult result, Map<String, Object> payload) {
+        if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(Double.parseDouble(payload.get("diemChuyenCan").toString()));
+        if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(Double.parseDouble(payload.get("diemKiemTra").toString()));
+        if (payload.containsKey("diemThi")) result.setDiemThi(Double.parseDouble(payload.get("diemThi").toString()));
+
+        Double cc = result.getDiemChuyenCan() != null ? result.getDiemChuyenCan() : 0.0;
+        Double kt = result.getDiemKiemTra() != null ? result.getDiemKiemTra() : 0.0;
+        Double thi = result.getDiemThi() != null ? result.getDiemThi() : 0.0;
+
+        double tk = (cc * 0.1) + (kt * 0.3) + (thi * 0.6);
+        tk = Math.round(tk * 10.0) / 10.0;
+        result.setDiemTongKet(tk);
+
+        String chu;
+        double he4;
+        if (tk < 4.0) {
+            chu = "F";
+            he4 = 0.0;
+        } else if (tk < 5.5) {
+            chu = "D";
+            he4 = 1.0;
+        } else if (tk < 7.0) {
+            chu = "C";
+            he4 = 2.0;
+        } else if (tk < 8.5) {
+            chu = "B";
+            he4 = 3.0;
+        } else {
+            chu = "A";
+            he4 = 4.0;
+        }
+        
+        result.setDiemChu(chu);
+        result.setDiemHe4(he4);
     }
 }

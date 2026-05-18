@@ -89,7 +89,9 @@ class GpaDashboardScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: LineChart(
+              child: gpaStats == null || gpaStats.semesterGpas.isEmpty 
+                  ? const Center(child: Text('Chưa có dữ liệu GPA qua các kỳ'))
+                  : LineChart(
                 LineChartData(
                   gridData: FlGridData(
                     show: true,
@@ -101,26 +103,42 @@ class GpaDashboardScreen extends StatelessWidget {
                       dashArray: [5, 5],
                     ),
                   ),
-                  titlesData: const FlTitlesData(
-                    rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                    topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  titlesData: FlTitlesData(
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: true, reservedSize: 22, interval: 1),
+                      sideTitles: SideTitles(
+                        showTitles: true, 
+                        reservedSize: 30, 
+                        interval: 1,
+                        getTitlesWidget: (value, meta) {
+                          final index = value.toInt() - 1;
+                          if (index >= 0 && index < gpaStats.semesterGpas.length) {
+                            String semName = gpaStats.semesterGpas[index].semesterName;
+                            String shortName = semName.contains("1") ? "HK1" 
+                                             : semName.contains("2") ? "HK2" 
+                                             : semName.contains("3") ? "HK3" 
+                                             : "HK";
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: Text(shortName, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
+                            );
+                          }
+                          return const Text('');
+                        },
+                      ),
                     ),
                   ),
                   borderData: FlBorderData(show: false),
                   minX: 1,
-                  maxX: 4,
+                  maxX: gpaStats.semesterGpas.length.toDouble(),
                   minY: 0,
                   maxY: 4,
                   lineBarsData: [
                     LineChartBarData(
-                      spots: const [
-                        FlSpot(1, 2.5),
-                        FlSpot(2, 2.8),
-                        FlSpot(3, 3.2),
-                        FlSpot(4, 3.5),
-                      ],
+                      spots: List.generate(gpaStats.semesterGpas.length, (index) {
+                        return FlSpot((index + 1).toDouble(), gpaStats.semesterGpas[index].gpa);
+                      }),
                       isCurved: true,
                       gradient: const LinearGradient(
                         colors: [Color(0xFF64B5F6), Color(0xFF1976D2)],

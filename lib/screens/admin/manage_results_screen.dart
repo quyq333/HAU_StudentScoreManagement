@@ -61,31 +61,14 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
           ElevatedButton(
             onPressed: () async {
-              // Tự động tính điểm tổng kết và điểm chữ cơ bản (bạn có thể đưa logic này lên Backend)
               double? cc = double.tryParse(ccController.text);
               double? kt = double.tryParse(ktController.text);
               double? thi = double.tryParse(thiController.text);
-              
-              double tk = 0.0;
-              if (cc != null && kt != null && thi != null) {
-                tk = (cc * 0.1) + (kt * 0.2) + (thi * 0.7);
-              }
 
-              String diemChu = 'F';
-              if (tk >= 8.5) diemChu = 'A';
-              else if (tk >= 8.0) diemChu = 'B+';
-              else if (tk >= 7.0) diemChu = 'B';
-              else if (tk >= 6.5) diemChu = 'C+';
-              else if (tk >= 5.5) diemChu = 'C';
-              else if (tk >= 5.0) diemChu = 'D+';
-              else if (tk >= 4.0) diemChu = 'D';
-
-              final data = {
+              final Map<String, dynamic> data = {
                 'diemChuyenCan': cc,
                 'diemKiemTra': kt,
                 'diemThi': thi,
-                'diemTongKet': double.parse(tk.toStringAsFixed(1)),
-                'diemChu': diemChu,
               };
 
               if (!isEditing) {
@@ -139,7 +122,7 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
                 return ListTile(
                   leading: CircleAvatar(child: Text(result['diemChu'] ?? '-')),
                   title: Text('$sv - $mh'),
-                  subtitle: Text('CC: ${result['diemChuyenCan']} | KT: ${result['diemKiemTra']} | Thi: ${result['diemThi']} \nTổng: ${result['diemTongKet']}'),
+                  subtitle: Text('CC: ${result['diemChuyenCan']} | KT: ${result['diemKiemTra']} | Thi: ${result['diemThi']} \nTổng: ${result['diemTongKet']} | Hệ 4: ${result['diemHe4'] ?? '-'}'),
                   isThreeLine: true,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
