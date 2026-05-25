@@ -18,6 +18,11 @@ public class SubjectController {
 
     private final SubjectRepository subjectRepository;
 
+    @GetMapping
+    public ResponseEntity<List<Subject>> getAllSubjects() {
+        return ResponseEntity.ok(subjectRepository.findAll());
+    }
+
     @GetMapping("/semester/{semesterId}")
     public ResponseEntity<List<Subject>> getSubjectsBySemester(@PathVariable Integer semesterId) {
         return ResponseEntity.ok(subjectRepository.findBySemester_Id(semesterId));

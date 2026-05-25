@@ -1,34 +1,79 @@
 import 'package:flutter/material.dart';
 import '../models/subject_result_model.dart';
+import '../models/schedule_model.dart';
+import '../models/study_material_model.dart';
+import '../services/student_service.dart';
 import '../utils/theme.dart';
 
-class SubjectDetailScreen extends StatelessWidget {
+class SubjectDetailScreen extends StatefulWidget {
   final SubjectResultModel result;
 
   const SubjectDetailScreen({super.key, required this.result});
 
   @override
+  State<SubjectDetailScreen> createState() => _SubjectDetailScreenState();
+}
+
+class _SubjectDetailScreenState extends State<SubjectDetailScreen> {
+  final StudentService _studentService = StudentService();
+  bool _isLoading = true;
+  List<Schedule> _schedules = [];
+  List<StudyMaterial> _materials = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadExtraData();
+  }
+
+  Future<void> _loadExtraData() async {
+    setState(() => _isLoading = true);
+    try {
+      final schedulesData = await _studentService.getSchedulesBySubject(widget.result.maMonHoc);
+      final materialsData = await _studentService.getMaterialsBySubject(widget.result.maMonHoc);
+      
+      if (mounted) {
+        setState(() {
+          _schedules = schedulesData.map((e) => Schedule.fromJson(e)).toList();
+          _materials = materialsData.map((e) => StudyMaterial.fromJson(e)).toList();
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isPassed = result.diemTongKet >= 4.0;
+    final isPassed = widget.result.diemTongKet >= 4.0;
     
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chi tiết môn học'),
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildHeaderCard(context, isPassed),
-            const SizedBox(height: 24),
-            _buildScoresGrid(context),
-            const SizedBox(height: 24),
-            _buildStatusCard(context, isPassed),
-          ],
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeaderCard(context, isPassed),
+              const SizedBox(height: 24),
+              _buildScoresGrid(context),
+              const SizedBox(height: 24),
+              _buildStatusCard(context, isPassed),
+              const SizedBox(height: 24),
+              _buildSchedules(context),
+              const SizedBox(height: 24),
+              _buildMaterials(context),
+            ],
+          ),
         ),
-      ),
     );
   }
 
@@ -63,13 +108,13 @@ class SubjectDetailScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              result.maMonHoc,
+              widget.result.maMonHoc,
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 16),
           Text(
-            result.tenMonHoc,
+            widget.result.tenMonHoc,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 24,
@@ -83,7 +128,7 @@ class SubjectDetailScreen extends StatelessWidget {
               const Icon(Icons.menu_book, color: Colors.white70, size: 20),
               const SizedBox(width: 8),
               Text(
-                '${result.soTinChi} Tín chỉ',
+                '${widget.result.soTinChi} Tín chỉ',
                 style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
               const Spacer(),
@@ -94,7 +139,7 @@ class SubjectDetailScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  result.diemChu,
+                  widget.result.diemChu,
                   style: const TextStyle(
                     color: Colors.black87,
                     fontWeight: FontWeight.bold,
@@ -130,11 +175,11 @@ class SubjectDetailScreen extends StatelessWidget {
           crossAxisSpacing: 16,
           childAspectRatio: 1.5,
           children: [
-            _buildScoreTile('Chuyên cần', result.diemChuyenCan, Icons.fact_check),
-            _buildScoreTile('Giữa kỳ', result.diemKiemTra, Icons.assignment),
-            _buildScoreTile('Cuối kỳ', result.diemThi, Icons.school),
-            _buildScoreTile('Tổng kết', result.diemTongKet, Icons.stars, isHighlighted: true),
-            _buildScoreTile('Hệ 4', result.diemHe4, Icons.grade, isHighlighted: true),
+            _buildScoreTile('Chuyên cần', widget.result.diemChuyenCan, Icons.fact_check),
+            _buildScoreTile('Giữa kỳ', widget.result.diemKiemTra, Icons.assignment),
+            _buildScoreTile('Cuối kỳ', widget.result.diemThi, Icons.school),
+            _buildScoreTile('Tổng kết', widget.result.diemTongKet, Icons.stars, isHighlighted: true),
+            _buildScoreTile('Hệ 4', widget.result.diemHe4, Icons.grade, isHighlighted: true),
           ],
         ),
       ],
@@ -239,5 +284,79 @@ class SubjectDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildSchedules(BuildContext context) {
+    if (_schedules.isEmpty) return const SizedBox();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Lịch học',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryBlue,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ..._schedules.map((schedule) => Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: AppTheme.primaryBlue.withOpacity(0.1),
+              child: const Icon(Icons.calendar_month, color: AppTheme.primaryBlue),
+            ),
+            title: Text('${schedule.thuTrongTuan} - ${schedule.caHoc}', style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(
+              'Thời gian: ${_formatDate(schedule.ngayBatDau)} - ${_formatDate(schedule.ngayKetThuc)}\n'
+              'Phòng: ${schedule.classroom?.tenPhong ?? ''} | GV: ${schedule.lecturer?.hoTen ?? ''}'
+            ),
+          ),
+        )).toList(),
+      ],
+    );
+  }
+
+  Widget _buildMaterials(BuildContext context) {
+    if (_materials.isEmpty) return const SizedBox();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Tài liệu học tập',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryBlue,
+          ),
+        ),
+        const SizedBox(height: 16),
+        ..._materials.map((material) => Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.orange.withOpacity(0.1),
+              child: const Icon(Icons.description, color: Colors.orange),
+            ),
+            title: Text(material.tenTaiLieu, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text('Loại: ${material.loaiTaiLieu ?? ''}'),
+            trailing: IconButton(
+              icon: const Icon(Icons.download, color: AppTheme.primaryBlue),
+              onPressed: () {
+                // TODO: Open URL material.duongDan
+              },
+            ),
+          ),
+        )).toList(),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}";
   }
 }

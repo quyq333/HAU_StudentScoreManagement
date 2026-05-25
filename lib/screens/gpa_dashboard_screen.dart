@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../providers/student_provider.dart';
 import 'failed_subjects_screen.dart';
+import 'student/student_schedule_screen.dart';
+import 'student/student_material_screen.dart';
+import 'student/register_schedule_screen.dart';
 
 class GpaDashboardScreen extends StatelessWidget {
   const GpaDashboardScreen({super.key});
@@ -67,6 +70,92 @@ class GpaDashboardScreen extends StatelessWidget {
               ],
             ),
             
+            const SizedBox(height: 16),
+            
+            // Quick Actions Row
+            Row(
+              children: [
+                Expanded(
+                  child: _buildGradientCard(
+                    context, 
+                    'Lịch Học', 
+                    'Xem ngay',
+                    Icons.calendar_month,
+                    [const Color(0xFF8E24AA), const Color(0xFF6A1B9A)],
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentScheduleScreen())),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildGradientCard(
+                    context, 
+                    'Tài Liệu', 
+                    'Mới nhất',
+                    Icons.description,
+                    [const Color(0xFF00ACC1), const Color(0xFF00838F)],
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StudentMaterialScreen())),
+                  ),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Premium Register Schedule Card
+            InkWell(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScheduleScreen())),
+              borderRadius: BorderRadius.circular(24),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE53935), Color(0xFFD32F2F)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFFD32F2F).withOpacity(0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.add_task, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Đăng ký Lịch học',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+                  ],
+                ),
+              ),
+            ),
+
             const SizedBox(height: 32),
             const Text(
               'Biểu đồ GPA các kỳ',
@@ -181,8 +270,11 @@ class GpaDashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGradientCard(BuildContext context, String title, String value, IconData icon, List<Color> gradientColors) {
-    return Container(
+  Widget _buildGradientCard(BuildContext context, String title, String value, IconData icon, List<Color> gradientColors, {VoidCallback? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -230,7 +322,7 @@ class GpaDashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 
   Widget _buildWarningCard(BuildContext context, int count) {

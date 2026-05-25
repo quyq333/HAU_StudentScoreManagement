@@ -28,6 +28,12 @@ public class ResultController {
         return ResponseEntity.ok(resultService.getResultsBySemester(maSV, semesterId));
     }
 
+    @GetMapping
+    public ResponseEntity<List<StudentResult>> getAllResults(Authentication authentication) {
+        String maSV = authentication.getName();
+        return ResponseEntity.ok(resultService.getAllResults(maSV));
+    }
+
     @GetMapping("/failed")
     public ResponseEntity<List<StudentResult>> getFailedSubjects(Authentication authentication) {
         String maSV = authentication.getName();

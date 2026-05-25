@@ -7,6 +7,10 @@ import 'manage_subjects_screen.dart';
 import 'manage_semesters_screen.dart';
 import 'admin_semester_flow_screen.dart';
 import 'admin_subject_semester_flow_screen.dart';
+import 'manage_semesters_screen.dart';
+import 'manage_classrooms_screen.dart';
+import 'manage_schedules_screen.dart';
+import 'manage_materials_screen.dart';
 import '../../utils/theme.dart';
 
 class AdminDashboardScreen extends StatelessWidget {
@@ -87,8 +91,32 @@ class AdminDashboardScreen extends StatelessWidget {
                   title: 'Học Kỳ',
                   subtitle: 'QL Thời gian',
                   icon: Icons.calendar_month,
-                  color: const Color(0xFF8E24AA), // Purple
+                  color: const Color(0xFF8E24AA),
                   onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageSemestersScreen())),
+                ),
+                _buildMenuCard(
+                  context,
+                  title: 'Phòng học',
+                  subtitle: 'QL Tòa nhà, Sức chứa',
+                  icon: Icons.room,
+                  color: Colors.teal,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassroomsScreen())),
+                ),
+                _buildMenuCard(
+                  context,
+                  title: 'Lịch học',
+                  subtitle: 'QL Lịch giảng dạy',
+                  icon: Icons.calendar_month,
+                  color: Colors.indigo,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageSchedulesScreen())),
+                ),
+                _buildMenuCard(
+                  context,
+                  title: 'Tài liệu',
+                  subtitle: 'QL File & Đường dẫn',
+                  icon: Icons.description,
+                  color: Colors.brown,
+                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageMaterialsScreen())),
                 ),
               ],
             ),

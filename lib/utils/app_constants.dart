@@ -1,7 +1,7 @@
 class AppConstants {
   // Thay thế bằng địa chỉ IP của máy bạn nếu test trên thiết bị thật
   // 10.0.2.2 là localhost cho Android Emulator
-  static const String baseUrl = 'http://192.168.137.169:8080/api/v1';
+  static const String baseUrl = 'http://192.168.137.184:8080/api/v1';
 
   // API Endpoints
   static const String loginEndpoint = '/auth/login';
@@ -16,6 +16,14 @@ class AppConstants {
   static const String adminSubjectsEndpoint = '/admin/subjects';
   static const String adminSemestersEndpoint = '/admin/semesters';
   static const String adminResultsEndpoint = '/admin/results';
+  static const String adminClassroomsEndpoint = '/admin/classrooms';
+  static const String adminSchedulesEndpoint = '/admin/schedules';
+  static const String adminMaterialsEndpoint = '/admin/materials';
+  static const String adminLecturersEndpoint = '/admin/lecturers';
+
+  // Student Endpoints
+  static const String schedulesEndpoint = '/schedules';
+  static const String materialsEndpoint = '/materials';
 
   // Shared Preferences Keys
   static const String tokenKey = 'jwt_token';

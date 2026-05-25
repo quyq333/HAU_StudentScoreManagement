@@ -24,6 +24,10 @@ public class ResultService {
         return resultRepository.findByStudent_MaSVAndSemester_Id(maSV, semesterId);
     }
 
+    public List<StudentResult> getAllResults(String maSV) {
+        return resultRepository.findByStudent_MaSV(maSV);
+    }
+
     public List<StudentResult> getFailedSubjects(String maSV) {
         List<StudentResult> allResults = resultRepository.findByStudent_MaSV(maSV);
         return allResults.stream()
