@@ -33,9 +33,11 @@ class FailedSubjectsScreen extends StatelessWidget {
                       subject.tenMonHoc,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text('Mã MH: ${subject.maMonHoc} | Số TC: ${subject.soTinChi}'),
+                    subtitle: Text(
+                      'Mã MH: ${subject.maMonHoc} | Số TC: ${subject.soTinChi}',
+                    ),
                     trailing: Text(
-                      'Tổng kết: ${subject.diemTongKet}',
+                      'Tổng kết: ${subject.diemTongKetHienThi}',
                       style: const TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,

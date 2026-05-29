@@ -10,6 +10,7 @@ import 'admin_subject_semester_flow_screen.dart';
 import 'manage_semesters_screen.dart';
 import 'manage_classrooms_screen.dart';
 import 'manage_schedules_screen.dart';
+import 'manage_exam_schedules_screen.dart';
 import 'manage_materials_screen.dart';
 import '../../utils/theme.dart';
 
@@ -52,7 +53,11 @@ class AdminDashboardScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const Text(
               'Quản lý hệ thống',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryBlue),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.primaryBlue,
+              ),
             ),
             const SizedBox(height: 16),
             GridView.count(
@@ -68,7 +73,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'Theo lớp & SV',
                   icon: Icons.edit_document,
                   color: const Color(0xFFE53935), // Red
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSemesterFlowScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminSemesterFlowScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -76,7 +86,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'QL Hồ sơ SV',
                   icon: Icons.people,
                   color: const Color(0xFFF57C00), // Orange
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageStudentsScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageStudentsScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -84,7 +99,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'Khung chương trình',
                   icon: Icons.book,
                   color: const Color(0xFF43A047), // Green
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminSubjectSemesterFlowScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminSubjectSemesterFlowScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -92,7 +112,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'QL Thời gian',
                   icon: Icons.calendar_month,
                   color: const Color(0xFF8E24AA),
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageSemestersScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageSemestersScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -100,7 +125,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'QL Tòa nhà, Sức chứa',
                   icon: Icons.room,
                   color: Colors.teal,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageClassroomsScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageClassroomsScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -108,7 +138,25 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'QL Lịch giảng dạy',
                   icon: Icons.calendar_month,
                   color: Colors.indigo,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageSchedulesScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageSchedulesScreen(),
+                    ),
+                  ),
+                ),
+                _buildMenuCard(
+                  context,
+                  title: 'Lịch thi',
+                  subtitle: 'QL lịch thi & SV',
+                  icon: Icons.event_available,
+                  color: Colors.deepOrange,
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageExamSchedulesScreen(),
+                    ),
+                  ),
                 ),
                 _buildMenuCard(
                   context,
@@ -116,7 +164,12 @@ class AdminDashboardScreen extends StatelessWidget {
                   subtitle: 'QL File & Đường dẫn',
                   icon: Icons.description,
                   color: Colors.brown,
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ManageMaterialsScreen())),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ManageMaterialsScreen(),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -151,19 +204,27 @@ class AdminDashboardScreen extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             'Xin chào, $name',
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             'Trung tâm điều hành Quản lý Đào tạo',
-            style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.8)),
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.white.withOpacity(0.8),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildMenuCard(BuildContext context, {
+  Widget _buildMenuCard(
+    BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
@@ -204,7 +265,11 @@ class AdminDashboardScreen extends StatelessWidget {
                 const Spacer(),
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(

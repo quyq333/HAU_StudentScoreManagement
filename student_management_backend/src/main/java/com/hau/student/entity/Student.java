@@ -23,7 +23,7 @@ public class Student {
     @Column(name = "MaSV", length = 20)
     private String maSV;
     
-    @Column(name = "HoTen", nullable = false, length = 100)
+    @Column(name = "HoTen", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String hoTen;
     
     @Column(name = "NgaySinh")

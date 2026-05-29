@@ -49,7 +49,9 @@ class StudentService {
 
   Future<List<SubjectResultModel>> getFailedSubjects() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.failedSubjectsEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.failedSubjectsEndpoint,
+      );
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data;
         return data.map((json) => SubjectResultModel.fromJson(json)).toList();
@@ -74,7 +76,9 @@ class StudentService {
 
   Future<List<dynamic>> getSchedulesBySubject(String subjectId) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.schedulesEndpoint}/subject/$subjectId');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.schedulesEndpoint}/subject/$subjectId',
+      );
       if (response.statusCode == 200) {
         return response.data;
       }
@@ -86,7 +90,9 @@ class StudentService {
 
   Future<List<dynamic>> getMaterialsBySubject(String subjectId) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.materialsEndpoint}/subject/$subjectId');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.materialsEndpoint}/subject/$subjectId',
+      );
       if (response.statusCode == 200) {
         return response.data;
       }
@@ -98,7 +104,23 @@ class StudentService {
 
   Future<List<dynamic>> getSchedulesByStudent(String maSV) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.schedulesEndpoint}/student/$maSV');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.schedulesEndpoint}/student/$maSV',
+      );
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+      return [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<dynamic>> getExamSchedulesByStudent(String maSV) async {
+    try {
+      final response = await ApiClient.dio.get(
+        '${AppConstants.examSchedulesEndpoint}/student/$maSV',
+      );
       if (response.statusCode == 200) {
         return response.data;
       }
@@ -110,7 +132,9 @@ class StudentService {
 
   Future<List<dynamic>> getMaterialsByStudent(String maSV) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.materialsEndpoint}/student/$maSV');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.materialsEndpoint}/student/$maSV',
+      );
       if (response.statusCode == 200) {
         return response.data;
       }
@@ -124,10 +148,7 @@ class StudentService {
     try {
       final response = await ApiClient.dio.post(
         '${AppConstants.schedulesEndpoint}/register',
-        data: {
-          'maSV': maSV,
-          'scheduleId': scheduleId,
-        },
+        data: {'maSV': maSV, 'scheduleId': scheduleId},
       );
       if (response.statusCode == 200) {
         return null; // success
@@ -145,10 +166,7 @@ class StudentService {
     try {
       final response = await ApiClient.dio.delete(
         '${AppConstants.schedulesEndpoint}/cancel',
-        queryParameters: {
-          'maSV': maSV,
-          'scheduleId': scheduleId,
-        },
+        queryParameters: {'maSV': maSV, 'scheduleId': scheduleId},
       );
       if (response.statusCode == 200) {
         return null; // success
@@ -164,7 +182,9 @@ class StudentService {
 
   Future<List<dynamic>> getRegisteredSchedules(String maSV) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.schedulesEndpoint}/registered/$maSV');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.schedulesEndpoint}/registered/$maSV',
+      );
       if (response.statusCode == 200) {
         return response.data;
       }

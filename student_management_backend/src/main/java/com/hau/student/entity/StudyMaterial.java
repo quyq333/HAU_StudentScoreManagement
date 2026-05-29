@@ -27,13 +27,13 @@ public class StudyMaterial {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Subject subject;
     
-    @Column(name = "TenTaiLieu", nullable = false, length = 200)
+    @Column(name = "TenTaiLieu", nullable = false, columnDefinition = "NVARCHAR(200)")
     private String tenTaiLieu;
     
-    @Column(name = "LoaiTaiLieu", length = 50)
+    @Column(name = "LoaiTaiLieu", columnDefinition = "NVARCHAR(50)")
     private String loaiTaiLieu; // PDF, DOCX, LINK, VIDEO
     
-    @Column(name = "DuongDan", length = 500)
+    @Column(name = "DuongDan", columnDefinition = "NVARCHAR(500)")
     private String duongDan;
     
     @Column(name = "NgayTaiLen")

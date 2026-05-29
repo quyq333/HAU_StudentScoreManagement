@@ -31,10 +31,10 @@ public class Schedule {
     @JoinColumn(name = "IdPhong")
     private Classroom classroom;
     
-    @Column(name = "ThuTrongTuan", length = 20)
+    @Column(name = "ThuTrongTuan", columnDefinition = "NVARCHAR(20)")
     private String thuTrongTuan; // Ví dụ: "Thứ 2", "Thứ 3"
     
-    @Column(name = "CaHoc", length = 20)
+    @Column(name = "CaHoc", columnDefinition = "NVARCHAR(20)")
     private String caHoc; // Ví dụ: "Ca sáng", "Ca chiều", "Ca tối"
     
     @ManyToOne(fetch = FetchType.EAGER)

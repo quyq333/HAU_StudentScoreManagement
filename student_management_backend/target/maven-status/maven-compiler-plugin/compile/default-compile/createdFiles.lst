@@ -2,11 +2,14 @@ com\hau\student\security\CustomUserDetailsService.class
 com\hau\student\entity\ScheduleRegistration.class
 com\hau\student\entity\StudentResult$StudentResultBuilder.class
 com\hau\student\entity\StudyMaterial$StudyMaterialBuilder.class
+com\hau\student\entity\ExamSchedule$ExamScheduleBuilder.class
 com\hau\student\controller\admin\AdminClassroomController.class
 com\hau\student\repository\StudyMaterialRepository.class
 com\hau\student\service\ResultService.class
 com\hau\student\controller\SemesterController.class
+com\hau\student\controller\ExamScheduleController.class
 com\hau\student\entity\Lecturer$LecturerBuilder.class
+com\hau\student\entity\ExamRegistration$ExamRegistrationBuilder.class
 com\hau\student\entity\Student.class
 com\hau\student\entity\Schedule.class
 com\hau\student\controller\ResultController.class
@@ -16,9 +19,12 @@ com\hau\student\controller\ScheduleRegistrationController.class
 com\hau\student\entity\Semester$SemesterBuilder.class
 com\hau\student\repository\StudentRepository.class
 com\hau\student\repository\StudentResultRepository.class
+com\hau\student\entity\ExamRegistration.class
 com\hau\student\entity\Subject$SubjectBuilder.class
 com\hau\student\controller\StudyMaterialController.class
+com\hau\student\repository\ExamRegistrationRepository.class
 com\hau\student\repository\ClassroomRepository.class
+com\hau\student\controller\admin\AdminExamScheduleController.class
 com\hau\student\dto\GpaResponse.class
 com\hau\student\dto\SemesterGpa$SemesterGpaBuilder.class
 com\hau\student\controller\StudentController.class
@@ -28,6 +34,7 @@ com\hau\student\StudentManagementApplication.class
 com\hau\student\controller\admin\AdminLecturerController.class
 com\hau\student\security\SecurityConfig.class
 com\hau\student\service\SemesterService.class
+com\hau\student\entity\ExamSchedule.class
 com\hau\student\controller\admin\AdminSubjectController.class
 com\hau\student\controller\SubjectController.class
 com\hau\student\entity\Subject.class
@@ -52,6 +59,7 @@ com\hau\student\dto\JwtAuthResponse.class
 com\hau\student\dto\GpaResponse$GpaResponseBuilder.class
 com\hau\student\controller\admin\AdminStudyMaterialController.class
 com\hau\student\dto\SemesterGpa.class
+com\hau\student\repository\ExamScheduleRepository.class
 com\hau\student\entity\Schedule$ScheduleBuilder.class
 com\hau\student\controller\admin\AdminResultController.class
 com\hau\student\entity\Classroom.class

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -33,35 +34,40 @@ public class AdminScheduleController {
     public ResponseEntity<?> createSchedule(@RequestBody Map<String, Object> payload) {
         try {
             Schedule schedule = new Schedule();
-            schedule.setThuTrongTuan((String) payload.get("thuTrongTuan"));
-            schedule.setCaHoc((String) payload.get("caHoc"));
+            schedule.setThuTrongTuan(getStringValue(payload.get("thuTrongTuan")));
+            schedule.setCaHoc(getStringValue(payload.get("caHoc")));
             schedule.setIsConfirmed(false);
             
             if (payload.containsKey("ngayBatDau")) {
-                String ngayBatDauStr = (String) payload.get("ngayBatDau");
+                String ngayBatDauStr = getStringValue(payload.get("ngayBatDau"));
                 if (ngayBatDauStr != null && !ngayBatDauStr.trim().isEmpty()) {
-                    schedule.setNgayBatDau(java.time.LocalDate.parse(ngayBatDauStr));
+                    schedule.setNgayBatDau(LocalDate.parse(ngayBatDauStr));
                 }
             }
             if (payload.containsKey("ngayKetThuc")) {
-                String ngayKetThucStr = (String) payload.get("ngayKetThuc");
+                String ngayKetThucStr = getStringValue(payload.get("ngayKetThuc"));
                 if (ngayKetThucStr != null && !ngayKetThucStr.trim().isEmpty()) {
-                    schedule.setNgayKetThuc(java.time.LocalDate.parse(ngayKetThucStr));
+                    schedule.setNgayKetThuc(LocalDate.parse(ngayKetThucStr));
                 }
             }
 
             if (payload.containsKey("maGV")) {
-                String maGV = (String) payload.get("maGV");
+                String maGV = getStringValue(payload.get("maGV"));
                 if (maGV != null) {
                     lecturerRepository.findById(maGV).ifPresent(schedule::setLecturer);
                 }
             }
             if (payload.containsKey("maMonHoc")) {
-                subjectRepository.findById((String) payload.get("maMonHoc")).ifPresent(schedule::setSubject);
+                String maMonHoc = getStringValue(payload.get("maMonHoc"));
+                if (maMonHoc != null) {
+                    subjectRepository.findById(maMonHoc).ifPresent(schedule::setSubject);
+                }
             }
             if (payload.containsKey("idPhong")) {
-                Number idPhong = (Number) payload.get("idPhong");
-                classroomRepository.findById(idPhong.longValue()).ifPresent(schedule::setClassroom);
+                Long idPhong = getLongValue(payload.get("idPhong"));
+                if (idPhong != null) {
+                    classroomRepository.findById(idPhong).ifPresent(schedule::setClassroom);
+                }
             }
             
             return ResponseEntity.ok(scheduleRepository.save(schedule));
@@ -72,49 +78,99 @@ public class AdminScheduleController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSchedule(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
-        return scheduleRepository.findById(id).map(schedule -> {
-            if (payload.containsKey("thuTrongTuan")) schedule.setThuTrongTuan((String) payload.get("thuTrongTuan"));
-            if (payload.containsKey("caHoc")) schedule.setCaHoc((String) payload.get("caHoc"));
-            if (payload.containsKey("isConfirmed")) schedule.setIsConfirmed((Boolean) payload.get("isConfirmed"));
-            
-            if (payload.containsKey("ngayBatDau")) {
-                String ngayBatDauStr = (String) payload.get("ngayBatDau");
-                if (ngayBatDauStr != null && !ngayBatDauStr.trim().isEmpty()) {
-                    schedule.setNgayBatDau(java.time.LocalDate.parse(ngayBatDauStr));
-                } else {
-                    schedule.setNgayBatDau(null);
+        try {
+            return scheduleRepository.findById(id).map(schedule -> {
+                if (payload.containsKey("thuTrongTuan")) {
+                    schedule.setThuTrongTuan(getStringValue(payload.get("thuTrongTuan")));
                 }
-            }
-            if (payload.containsKey("ngayKetThuc")) {
-                String ngayKetThucStr = (String) payload.get("ngayKetThuc");
-                if (ngayKetThucStr != null && !ngayKetThucStr.trim().isEmpty()) {
-                    schedule.setNgayKetThuc(java.time.LocalDate.parse(ngayKetThucStr));
-                } else {
-                    schedule.setNgayKetThuc(null);
+                if (payload.containsKey("caHoc")) {
+                    schedule.setCaHoc(getStringValue(payload.get("caHoc")));
                 }
-            }
+                if (payload.containsKey("isConfirmed")) {
+                    Boolean isConfirmed = getBooleanValue(payload.get("isConfirmed"));
+                    if (isConfirmed != null) {
+                        schedule.setIsConfirmed(isConfirmed);
+                    }
+                }
 
-            if (payload.containsKey("maGV")) {
-                String maGV = (String) payload.get("maGV");
-                if (maGV != null) {
-                    lecturerRepository.findById(maGV).ifPresent(schedule::setLecturer);
+                if (payload.containsKey("ngayBatDau")) {
+                    String ngayBatDauStr = getStringValue(payload.get("ngayBatDau"));
+                    if (ngayBatDauStr != null && !ngayBatDauStr.trim().isEmpty()) {
+                        schedule.setNgayBatDau(LocalDate.parse(ngayBatDauStr));
+                    } else {
+                        schedule.setNgayBatDau(null);
+                    }
                 }
-            }
-            if (payload.containsKey("maMonHoc")) {
-                subjectRepository.findById((String) payload.get("maMonHoc")).ifPresent(schedule::setSubject);
-            }
-            if (payload.containsKey("idPhong")) {
-                Number idPhong = (Number) payload.get("idPhong");
-                classroomRepository.findById(idPhong.longValue()).ifPresent(schedule::setClassroom);
-            }
-            return ResponseEntity.ok(scheduleRepository.save(schedule));
-        }).orElse(ResponseEntity.notFound().build());
+                if (payload.containsKey("ngayKetThuc")) {
+                    String ngayKetThucStr = getStringValue(payload.get("ngayKetThuc"));
+                    if (ngayKetThucStr != null && !ngayKetThucStr.trim().isEmpty()) {
+                        schedule.setNgayKetThuc(LocalDate.parse(ngayKetThucStr));
+                    } else {
+                        schedule.setNgayKetThuc(null);
+                    }
+                }
+
+                if (payload.containsKey("maGV")) {
+                    String maGV = getStringValue(payload.get("maGV"));
+                    if (maGV != null) {
+                        lecturerRepository.findById(maGV).ifPresent(schedule::setLecturer);
+                    }
+                }
+                if (payload.containsKey("maMonHoc")) {
+                    String maMonHoc = getStringValue(payload.get("maMonHoc"));
+                    if (maMonHoc != null) {
+                        subjectRepository.findById(maMonHoc).ifPresent(schedule::setSubject);
+                    }
+                }
+                if (payload.containsKey("idPhong")) {
+                    Long idPhong = getLongValue(payload.get("idPhong"));
+                    if (idPhong != null) {
+                        classroomRepository.findById(idPhong).ifPresent(schedule::setClassroom);
+                    }
+                }
+                return ResponseEntity.ok(scheduleRepository.save(schedule));
+            }).orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    private String getStringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = value.toString().trim();
+        return text.isEmpty() ? null : text;
+    }
+
+    private Long getLongValue(Object value) {
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        String text = getStringValue(value);
+        return text == null ? null : Long.parseLong(text);
+    }
+
+    private Boolean getBooleanValue(Object value) {
+        if (value instanceof Boolean boolValue) {
+            return boolValue;
+        }
+        String text = getStringValue(value);
+        return text == null ? null : Boolean.parseBoolean(text);
     }
 
     @PostMapping("/{id}/confirm")
     public ResponseEntity<?> confirmSchedule(@PathVariable Long id) {
         return scheduleRepository.findById(id).map(schedule -> {
             schedule.setIsConfirmed(true);
+            return ResponseEntity.ok(scheduleRepository.save(schedule));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/unconfirm")
+    public ResponseEntity<?> unconfirmSchedule(@PathVariable Long id) {
+        return scheduleRepository.findById(id).map(schedule -> {
+            schedule.setIsConfirmed(false);
             return ResponseEntity.ok(scheduleRepository.save(schedule));
         }).orElse(ResponseEntity.notFound().build());
     }

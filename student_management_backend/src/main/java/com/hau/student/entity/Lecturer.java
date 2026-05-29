@@ -18,7 +18,7 @@ public class Lecturer {
     @Column(name = "MaGV", length = 20)
     private String maGV;
     
-    @Column(name = "HoTen", nullable = false, length = 100)
+    @Column(name = "HoTen", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String hoTen;
     
     @Column(name = "Email", length = 100)
@@ -27,6 +27,6 @@ public class Lecturer {
     @Column(name = "SoDienThoai", length = 20)
     private String soDienThoai;
     
-    @Column(name = "Khoa", length = 100)
+    @Column(name = "Khoa", columnDefinition = "NVARCHAR(100)")
     private String khoa;
 }

@@ -1,6 +1,8 @@
 package com.hau.student.controller;
 
 import com.hau.student.entity.Schedule;
+import com.hau.student.entity.ScheduleRegistration;
+import com.hau.student.repository.ScheduleRegistrationRepository;
 import com.hau.student.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,7 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleRepository scheduleRepository;
+    private final ScheduleRegistrationRepository scheduleRegistrationRepository;
 
     @GetMapping("/subject/{maMonHoc}")
     public ResponseEntity<List<Schedule>> getSchedulesBySubject(@PathVariable String maMonHoc) {
@@ -24,6 +27,12 @@ public class ScheduleController {
     
     @GetMapping("/student/{maSV}")
     public ResponseEntity<List<Schedule>> getSchedulesByStudent(@PathVariable String maSV) {
-        return ResponseEntity.ok(scheduleRepository.findByStudentId(maSV));
+        List<Schedule> schedules = scheduleRegistrationRepository
+                .findByStudentMaSVAndScheduleIsConfirmedTrue(maSV)
+                .stream()
+                .map(ScheduleRegistration::getSchedule)
+                .toList();
+
+        return ResponseEntity.ok(schedules);
     }
 }

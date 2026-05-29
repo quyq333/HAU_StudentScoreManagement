@@ -4,10 +4,13 @@ import com.hau.student.entity.StudentResult;
 import com.hau.student.entity.Student;
 import com.hau.student.entity.Subject;
 import com.hau.student.entity.Semester;
+import com.hau.student.entity.ExamRegistration;
 import com.hau.student.repository.StudentResultRepository;
 import com.hau.student.repository.StudentRepository;
 import com.hau.student.repository.SubjectRepository;
 import com.hau.student.repository.SemesterRepository;
+import com.hau.student.repository.ScheduleRegistrationRepository;
+import com.hau.student.repository.ExamRegistrationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,6 +29,8 @@ public class AdminResultController {
     private final StudentRepository studentRepository;
     private final SubjectRepository subjectRepository;
     private final SemesterRepository semesterRepository;
+    private final ScheduleRegistrationRepository scheduleRegistrationRepository;
+    private final ExamRegistrationRepository examRegistrationRepository;
 
     @GetMapping
     public ResponseEntity<List<StudentResult>> getAllResults() {
@@ -46,12 +51,22 @@ public class AdminResultController {
             String maMonHoc = (String) payload.get("maMonHoc");
             Integer idHocKy = (Integer) payload.get("idHocKy");
 
+            validateScoreInputEligibility(maSV, maMonHoc);
+
             Student student = studentRepository.findById(maSV)
                     .orElseThrow(() -> new RuntimeException("Student not found"));
             Subject subject = subjectRepository.findById(maMonHoc)
                     .orElseThrow(() -> new RuntimeException("Subject not found"));
             Semester semester = semesterRepository.findById(idHocKy)
                     .orElseThrow(() -> new RuntimeException("Semester not found"));
+
+            List<StudentResult> existingResults = studentResultRepository
+                    .findByStudent_MaSVAndSubject_MaMonHocOrderByIdAsc(maSV, maMonHoc);
+            if (!existingResults.isEmpty()) {
+                StudentResult existingResult = existingResults.get(0);
+                appendRetakeScore(existingResult, payload);
+                return ResponseEntity.ok(studentResultRepository.save(existingResult));
+            }
 
             StudentResult result = new StudentResult();
             result.setStudent(student);
@@ -70,11 +85,12 @@ public class AdminResultController {
     public ResponseEntity<?> updateResult(@PathVariable Integer id, @RequestBody Map<String, Object> payload) {
         return studentResultRepository.findById(id).map(result -> {
             try {
+                validateScoreInputEligibility(result.getStudent().getMaSV(), result.getSubject().getMaMonHoc());
                 calculateAndSetScores(result, payload);
                 
                 return ResponseEntity.ok(studentResultRepository.save(result));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().build();
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -87,19 +103,93 @@ public class AdminResultController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
+    private void validateScoreInputEligibility(String maSV, String maMonHoc) {
+        boolean hasScheduleConfirmed = scheduleRegistrationRepository
+                .existsByStudent_MaSVAndSchedule_Subject_MaMonHocAndSchedule_IsConfirmedTrue(maSV, maMonHoc);
+        if (!hasScheduleConfirmed) {
+            throw new RuntimeException("Sinh viên chưa đăng ký học môn này không thể nhập");
+        }
+
+        List<ExamRegistration> examRegistrations = examRegistrationRepository
+                .findByStudent_MaSVAndExamSchedule_Subject_MaMonHoc(maSV, maMonHoc);
+        if (examRegistrations.isEmpty()) {
+            throw new RuntimeException("Sinh viên chưa đăng ký học môn này không thể nhập");
+        }
+
+        java.time.LocalDate today = java.time.LocalDate.now();
+        boolean hasPassedExam = false;
+        for (ExamRegistration reg : examRegistrations) {
+            if (reg.getExamSchedule() != null && reg.getExamSchedule().getNgayThi() != null) {
+                java.time.LocalDate examDate = reg.getExamSchedule().getNgayThi();
+                if (!examDate.isAfter(today)) {
+                    hasPassedExam = true;
+                    break;
+                }
+            }
+        }
+        if (!hasPassedExam) {
+            throw new RuntimeException("Lịch thi chưa diễn ra, không thể nhập điểm.");
+        }
+    }
+
+    private void validateRetakeCanBeScored(String maSV, String maMonHoc) {
+        boolean hasSchedule = scheduleRegistrationRepository
+                .existsByStudent_MaSVAndSchedule_Subject_MaMonHoc(maSV, maMonHoc);
+        if (!hasSchedule) {
+            throw new RuntimeException("Sinh viên học lại phải có lịch học trước khi nhập điểm mới.");
+        }
+
+        boolean hasExamSchedule = examRegistrationRepository
+                .existsByStudent_MaSVAndExamSchedule_Subject_MaMonHoc(maSV, maMonHoc);
+        if (!hasExamSchedule) {
+            throw new RuntimeException("Sinh viên học lại phải có lịch thi trước khi nhập điểm mới.");
+        }
+    }
+
+    private void appendRetakeScore(StudentResult result, Map<String, Object> payload) {
+        Double newTk = calculateTotalScore(
+                getDoubleValue(payload.get("diemChuyenCan")),
+                getDoubleValue(payload.get("diemKiemTra")),
+                getDoubleValue(payload.get("diemThi"))
+        );
+
+        if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(getDoubleValue(payload.get("diemChuyenCan")));
+        if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(getDoubleValue(payload.get("diemKiemTra")));
+        if (payload.containsKey("diemThi")) result.setDiemThi(getDoubleValue(payload.get("diemThi")));
+
+        String currentDisplay = result.getDiemTongKetHienThi();
+        if (currentDisplay == null || currentDisplay.isBlank()) {
+            currentDisplay = formatScore(result.getDiemTongKet());
+        }
+        result.setDiemTongKetHienThi(currentDisplay + "|" + formatScore(newTk));
+
+        Double bestScore = Math.max(result.getDiemTongKet() != null ? result.getDiemTongKet() : 0.0, newTk);
+        setSummaryScores(result, bestScore);
+    }
+
     private void calculateAndSetScores(StudentResult result, Map<String, Object> payload) {
-        if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(Double.parseDouble(payload.get("diemChuyenCan").toString()));
-        if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(Double.parseDouble(payload.get("diemKiemTra").toString()));
-        if (payload.containsKey("diemThi")) result.setDiemThi(Double.parseDouble(payload.get("diemThi").toString()));
+        if (payload.containsKey("diemChuyenCan")) result.setDiemChuyenCan(getDoubleValue(payload.get("diemChuyenCan")));
+        if (payload.containsKey("diemKiemTra")) result.setDiemKiemTra(getDoubleValue(payload.get("diemKiemTra")));
+        if (payload.containsKey("diemThi")) result.setDiemThi(getDoubleValue(payload.get("diemThi")));
 
         Double cc = result.getDiemChuyenCan() != null ? result.getDiemChuyenCan() : 0.0;
         Double kt = result.getDiemKiemTra() != null ? result.getDiemKiemTra() : 0.0;
         Double thi = result.getDiemThi() != null ? result.getDiemThi() : 0.0;
 
-        double tk = (cc * 0.1) + (kt * 0.3) + (thi * 0.6);
-        tk = Math.round(tk * 10.0) / 10.0;
-        result.setDiemTongKet(tk);
+        Double tk = calculateTotalScore(cc, kt, thi);
+        result.setDiemTongKetHienThi(formatScore(tk));
+        setSummaryScores(result, tk);
+    }
 
+    private Double calculateTotalScore(Double cc, Double kt, Double thi) {
+        double tk = ((cc != null ? cc : 0.0) * 0.1)
+                + ((kt != null ? kt : 0.0) * 0.3)
+                + ((thi != null ? thi : 0.0) * 0.6);
+        return Math.round(tk * 10.0) / 10.0;
+    }
+
+    private void setSummaryScores(StudentResult result, Double tk) {
+        result.setDiemTongKet(tk);
         String chu;
         double he4;
         if (tk < 4.0) {
@@ -121,5 +211,20 @@ public class AdminResultController {
         
         result.setDiemChu(chu);
         result.setDiemHe4(he4);
+    }
+
+    private Double getDoubleValue(Object value) {
+        if (value == null) {
+            return 0.0;
+        }
+        if (value instanceof Number number) {
+            return number.doubleValue();
+        }
+        String text = value.toString().trim();
+        return text.isEmpty() ? 0.0 : Double.parseDouble(text);
+    }
+
+    private String formatScore(Double value) {
+        return String.format(java.util.Locale.US, "%.1f", value != null ? value : 0.0);
     }
 }

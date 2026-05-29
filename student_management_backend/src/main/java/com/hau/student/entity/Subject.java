@@ -25,13 +25,13 @@ public class Subject {
     @Column(name = "MaMonHoc", length = 20)
     private String maMonHoc;
     
-    @Column(name = "TenMonHoc", nullable = false, length = 200)
+    @Column(name = "TenMonHoc", nullable = false, columnDefinition = "NVARCHAR(200)")
     private String tenMonHoc;
     
     @Column(name = "SoTinChi", nullable = false)
     private Integer soTinChi;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "IdHocKy")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Semester semester;

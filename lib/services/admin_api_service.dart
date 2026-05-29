@@ -10,7 +10,9 @@ class AdminApiService {
   // --- Students ---
   Future<List<UserModel>> getStudents() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminStudentsEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminStudentsEndpoint,
+      );
       return (response.data as List).map((e) => UserModel.fromJson(e)).toList();
     } catch (e) {
       return [];
@@ -19,7 +21,9 @@ class AdminApiService {
 
   Future<List<String>> getClasses() async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.adminStudentsEndpoint}/classes');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.adminStudentsEndpoint}/classes',
+      );
       return List<String>.from(response.data);
     } catch (e) {
       return [];
@@ -28,7 +32,9 @@ class AdminApiService {
 
   Future<List<UserModel>> getStudentsByClass(String className) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.adminStudentsEndpoint}/class/$className');
+      final response = await ApiClient.dio.get(
+        '${AppConstants.adminStudentsEndpoint}/class/$className',
+      );
       return (response.data as List).map((e) => UserModel.fromJson(e)).toList();
     } catch (e) {
       return [];
@@ -46,7 +52,10 @@ class AdminApiService {
 
   Future<bool> updateStudent(String maSV, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminStudentsEndpoint}/$maSV', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminStudentsEndpoint}/$maSV',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -65,8 +74,12 @@ class AdminApiService {
   // --- Subjects ---
   Future<List<SubjectModel>> getSubjects() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminSubjectsEndpoint);
-      return (response.data as List).map((e) => SubjectModel.fromJson(e)).toList();
+      final response = await ApiClient.dio.get(
+        AppConstants.adminSubjectsEndpoint,
+      );
+      return (response.data as List)
+          .map((e) => SubjectModel.fromJson(e))
+          .toList();
     } catch (e) {
       print('Error getSubjects: $e');
       return [];
@@ -75,8 +88,12 @@ class AdminApiService {
 
   Future<List<SubjectModel>> getSubjectsBySemester(int semesterId) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.adminSubjectsEndpoint}/semester/$semesterId');
-      return (response.data as List).map((e) => SubjectModel.fromJson(e)).toList();
+      final response = await ApiClient.dio.get(
+        '${AppConstants.adminSubjectsEndpoint}/semester/$semesterId',
+      );
+      return (response.data as List)
+          .map((e) => SubjectModel.fromJson(e))
+          .toList();
     } catch (e) {
       return [];
     }
@@ -93,7 +110,10 @@ class AdminApiService {
 
   Future<bool> updateSubject(String maMonHoc, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminSubjectsEndpoint}/$maMonHoc', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminSubjectsEndpoint}/$maMonHoc',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -102,7 +122,9 @@ class AdminApiService {
 
   Future<bool> deleteSubject(String maMonHoc) async {
     try {
-      await ApiClient.dio.delete('${AppConstants.adminSubjectsEndpoint}/$maMonHoc');
+      await ApiClient.dio.delete(
+        '${AppConstants.adminSubjectsEndpoint}/$maMonHoc',
+      );
       return true;
     } catch (e) {
       return false;
@@ -112,8 +134,12 @@ class AdminApiService {
   // --- Semesters ---
   Future<List<SemesterModel>> getSemesters() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminSemestersEndpoint);
-      return (response.data as List).map((e) => SemesterModel.fromJson(e)).toList();
+      final response = await ApiClient.dio.get(
+        AppConstants.adminSemestersEndpoint,
+      );
+      return (response.data as List)
+          .map((e) => SemesterModel.fromJson(e))
+          .toList();
     } catch (e) {
       return [];
     }
@@ -130,7 +156,10 @@ class AdminApiService {
 
   Future<bool> updateSemester(int id, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminSemestersEndpoint}/$id', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminSemestersEndpoint}/$id',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -149,37 +178,55 @@ class AdminApiService {
   // --- Results ---
   Future<List<Map<String, dynamic>>> getResults() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminResultsEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminResultsEndpoint,
+      );
       return List<Map<String, dynamic>>.from(response.data);
     } catch (e) {
       return [];
     }
   }
 
-  Future<List<SubjectResultModel>> getResultsByStudentAndSemester(String studentId, int semesterId) async {
+  Future<List<SubjectResultModel>> getResultsByStudentAndSemester(
+    String studentId,
+    int semesterId,
+  ) async {
     try {
-      final response = await ApiClient.dio.get('${AppConstants.adminResultsEndpoint}/student/$studentId/semester/$semesterId');
-      return (response.data as List).map((e) => SubjectResultModel.fromJson(e)).toList();
+      final response = await ApiClient.dio.get(
+        '${AppConstants.adminResultsEndpoint}/student/$studentId/semester/$semesterId',
+      );
+      return (response.data as List)
+          .map((e) => SubjectResultModel.fromJson(e))
+          .toList();
     } catch (e) {
       return [];
     }
   }
 
-  Future<bool> createResult(Map<String, dynamic> data) async {
+  Future<String?> createResult(Map<String, dynamic> data) async {
     try {
       await ApiClient.dio.post(AppConstants.adminResultsEndpoint, data: data);
-      return true;
+      return null;
     } catch (e) {
-      return false;
+      if (e is DioException && e.response != null) {
+        return e.response?.data?.toString() ?? 'Lỗi khi lưu điểm';
+      }
+      return 'Lỗi khi lưu điểm';
     }
   }
 
-  Future<bool> updateResult(int id, Map<String, dynamic> data) async {
+  Future<String?> updateResult(int id, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminResultsEndpoint}/$id', data: data);
-      return true;
+      await ApiClient.dio.put(
+        '${AppConstants.adminResultsEndpoint}/$id',
+        data: data,
+      );
+      return null;
     } catch (e) {
-      return false;
+      if (e is DioException && e.response != null) {
+        return e.response?.data?.toString() ?? 'Lỗi khi lưu điểm';
+      }
+      return 'Lỗi khi lưu điểm';
     }
   }
 
@@ -195,7 +242,9 @@ class AdminApiService {
   // --- Classrooms ---
   Future<List<Map<String, dynamic>>> getClassrooms() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminClassroomsEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminClassroomsEndpoint,
+      );
       return List<Map<String, dynamic>>.from(response.data);
     } catch (e) {
       return [];
@@ -204,7 +253,10 @@ class AdminApiService {
 
   Future<bool> createClassroom(Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.post(AppConstants.adminClassroomsEndpoint, data: data);
+      await ApiClient.dio.post(
+        AppConstants.adminClassroomsEndpoint,
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -213,7 +265,10 @@ class AdminApiService {
 
   Future<bool> updateClassroom(int id, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminClassroomsEndpoint}/$id', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminClassroomsEndpoint}/$id',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -232,7 +287,9 @@ class AdminApiService {
   // --- Schedules ---
   Future<List<Map<String, dynamic>>> getSchedules() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminSchedulesEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminSchedulesEndpoint,
+      );
       return List<Map<String, dynamic>>.from(response.data);
     } catch (e) {
       return [];
@@ -250,7 +307,10 @@ class AdminApiService {
 
   Future<bool> updateSchedule(int id, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminSchedulesEndpoint}/$id', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminSchedulesEndpoint}/$id',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;
@@ -268,7 +328,9 @@ class AdminApiService {
 
   Future<List<Map<String, dynamic>>> getLecturers() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminLecturersEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminLecturersEndpoint,
+      );
       return List<Map<String, dynamic>>.from(response.data);
     } catch (e) {
       return [];
@@ -277,7 +339,100 @@ class AdminApiService {
 
   Future<bool> confirmSchedule(int id) async {
     try {
-      await ApiClient.dio.post('${AppConstants.adminSchedulesEndpoint}/$id/confirm');
+      await ApiClient.dio.post(
+        '${AppConstants.adminSchedulesEndpoint}/$id/confirm',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> unconfirmSchedule(int id) async {
+    try {
+      await ApiClient.dio.post(
+        '${AppConstants.adminSchedulesEndpoint}/$id/unconfirm',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // --- Exam Schedules ---
+  Future<List<Map<String, dynamic>>> getExamSchedules() async {
+    try {
+      final response = await ApiClient.dio.get(
+        AppConstants.adminExamSchedulesEndpoint,
+      );
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<bool> createExamSchedule(Map<String, dynamic> data) async {
+    try {
+      await ApiClient.dio.post(
+        AppConstants.adminExamSchedulesEndpoint,
+        data: data,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> updateExamSchedule(int id, Map<String, dynamic> data) async {
+    try {
+      await ApiClient.dio.put(
+        '${AppConstants.adminExamSchedulesEndpoint}/$id',
+        data: data,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> deleteExamSchedule(int id) async {
+    try {
+      await ApiClient.dio.delete(
+        '${AppConstants.adminExamSchedulesEndpoint}/$id',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getEligibleExamStudents(int id) async {
+    try {
+      final response = await ApiClient.dio.get(
+        '${AppConstants.adminExamSchedulesEndpoint}/$id/eligible-students',
+      );
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<bool> addStudentToExamSchedule(int id, String maSV) async {
+    try {
+      await ApiClient.dio.post(
+        '${AppConstants.adminExamSchedulesEndpoint}/$id/students/$maSV',
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> removeStudentFromExamSchedule(int id, String maSV) async {
+    try {
+      await ApiClient.dio.delete(
+        '${AppConstants.adminExamSchedulesEndpoint}/$id/students/$maSV',
+      );
       return true;
     } catch (e) {
       return false;
@@ -287,7 +442,20 @@ class AdminApiService {
   // --- Study Materials ---
   Future<List<Map<String, dynamic>>> getMaterials() async {
     try {
-      final response = await ApiClient.dio.get(AppConstants.adminMaterialsEndpoint);
+      final response = await ApiClient.dio.get(
+        AppConstants.adminMaterialsEndpoint,
+      );
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getMaterialsBySubject(String maMonHoc) async {
+    try {
+      final response = await ApiClient.dio.get(
+        '${AppConstants.materialsEndpoint}/subject/$maMonHoc',
+      );
       return List<Map<String, dynamic>>.from(response.data);
     } catch (e) {
       return [];
@@ -305,7 +473,10 @@ class AdminApiService {
 
   Future<bool> updateMaterial(int id, Map<String, dynamic> data) async {
     try {
-      await ApiClient.dio.put('${AppConstants.adminMaterialsEndpoint}/$id', data: data);
+      await ApiClient.dio.put(
+        '${AppConstants.adminMaterialsEndpoint}/$id',
+        data: data,
+      );
       return true;
     } catch (e) {
       return false;

@@ -22,7 +22,10 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<StudentProvider>(context, listen: false).fetchResultsForSemester(widget.semesterId);
+      Provider.of<StudentProvider>(
+        context,
+        listen: false,
+      ).fetchResultsForSemester(widget.semesterId);
     });
   }
 
@@ -32,27 +35,25 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
     final results = studentProvider.currentSemesterResults;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Điểm ${widget.semesterName}'),
-      ),
+      appBar: AppBar(title: Text('Điểm ${widget.semesterName}')),
       body: studentProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : results.isEmpty
-              ? const Center(child: Text('Chưa có dữ liệu điểm cho học kỳ này'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: results.length,
-                  itemBuilder: (context, index) {
-                    final result = results[index];
-                    return _buildResultCard(context, result);
-                  },
-                ),
+          ? const Center(child: Text('Chưa có dữ liệu điểm cho học kỳ này'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: results.length,
+              itemBuilder: (context, index) {
+                final result = results[index];
+                return _buildResultCard(context, result);
+              },
+            ),
     );
   }
 
   Widget _buildResultCard(BuildContext context, SubjectResultModel result) {
     final bool isPassed = result.diemTongKet >= 4.0;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       child: Padding(
@@ -66,20 +67,30 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
                 Expanded(
                   child: Text(
                     '${result.maMonHoc} - ${result.tenMonHoc}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: isPassed ? Colors.green.shade100 : Colors.red.shade100,
+                    color: isPassed
+                        ? Colors.green.shade100
+                        : Colors.red.shade100,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     result.diemChu,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isPassed ? Colors.green.shade800 : Colors.red.shade800,
+                      color: isPassed
+                          ? Colors.green.shade800
+                          : Colors.red.shade800,
                     ),
                   ),
                 ),
@@ -96,7 +107,11 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
                 _buildScoreItem('Chuyên cần', result.diemChuyenCan),
                 _buildScoreItem('Kiểm tra', result.diemKiemTra),
                 _buildScoreItem('Thi', result.diemThi),
-                _buildScoreItem('Tổng kết', result.diemTongKet, isBold: true),
+                _buildScoreTextItem(
+                  'Tổng kết',
+                  result.diemTongKetHienThi,
+                  isBold: true,
+                ),
                 _buildScoreItem('Hệ 4', result.diemHe4, isBold: true),
               ],
             ),
@@ -107,6 +122,14 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
   }
 
   Widget _buildScoreItem(String label, double score, {bool isBold = false}) {
+    return _buildScoreTextItem(label, score.toStringAsFixed(1), isBold: isBold);
+  }
+
+  Widget _buildScoreTextItem(
+    String label,
+    String score, {
+    bool isBold = false,
+  }) {
     return Column(
       children: [
         Text(
@@ -115,7 +138,7 @@ class _SubjectResultScreenState extends State<SubjectResultScreen> {
         ),
         const SizedBox(height: 4),
         Text(
-          score.toStringAsFixed(1),
+          score,
           style: TextStyle(
             fontSize: 16,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,

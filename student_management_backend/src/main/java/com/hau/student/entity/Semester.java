@@ -19,7 +19,7 @@ public class Semester {
     @Column(name = "Id")
     private Integer id;
     
-    @Column(name = "TenHocKy", nullable = false, length = 50)
+    @Column(name = "TenHocKy", nullable = false, columnDefinition = "NVARCHAR(50)")
     private String tenHocKy;
     
     @Column(name = "NamHoc", nullable = false, length = 20)

@@ -7,6 +7,7 @@ class SubjectResultModel {
   final double diemKiemTra;
   final double diemThi;
   final double diemTongKet;
+  final String diemTongKetHienThi;
   final String diemChu;
   final double diemHe4;
 
@@ -19,6 +20,7 @@ class SubjectResultModel {
     required this.diemKiemTra,
     required this.diemThi,
     required this.diemTongKet,
+    required this.diemTongKetHienThi,
     required this.diemChu,
     required this.diemHe4,
   });
@@ -34,6 +36,9 @@ class SubjectResultModel {
       diemKiemTra: (json['diemKiemTra'] ?? 0).toDouble(),
       diemThi: (json['diemThi'] ?? 0).toDouble(),
       diemTongKet: (json['diemTongKet'] ?? 0).toDouble(),
+      diemTongKetHienThi:
+          json['diemTongKetHienThi'] ??
+          (json['diemTongKet'] ?? 0).toDouble().toStringAsFixed(1),
       diemChu: json['diemChu'] ?? '',
       diemHe4: (json['diemHe4'] ?? 0).toDouble(),
     );
@@ -55,7 +60,9 @@ class GpaModel {
 
   factory GpaModel.fromJson(Map<String, dynamic> json) {
     var list = json['semesterGpas'] as List? ?? [];
-    List<SemesterGpaModel> semesterGpasList = list.map((i) => SemesterGpaModel.fromJson(i)).toList();
+    List<SemesterGpaModel> semesterGpasList = list
+        .map((i) => SemesterGpaModel.fromJson(i))
+        .toList();
 
     return GpaModel(
       currentGpa: (json['currentGpa'] ?? 0).toDouble(),
@@ -70,10 +77,7 @@ class SemesterGpaModel {
   final String semesterName;
   final double gpa;
 
-  SemesterGpaModel({
-    required this.semesterName,
-    required this.gpa,
-  });
+  SemesterGpaModel({required this.semesterName, required this.gpa});
 
   factory SemesterGpaModel.fromJson(Map<String, dynamic> json) {
     return SemesterGpaModel(

@@ -6,7 +6,9 @@ import '../../models/schedule_model.dart';
 import '../../utils/theme.dart';
 
 class StudentScheduleScreen extends StatefulWidget {
-  const StudentScheduleScreen({super.key});
+  const StudentScheduleScreen({super.key, this.showAppBar = true});
+
+  final bool showAppBar;
 
   @override
   State<StudentScheduleScreen> createState() => _StudentScheduleScreenState();
@@ -31,7 +33,10 @@ class _StudentScheduleScreenState extends State<StudentScheduleScreen> {
         final data = await _studentService.getSchedulesByStudent(user.maSV);
         if (mounted) {
           setState(() {
-            _schedules = data.map((e) => Schedule.fromJson(e)).toList();
+            _schedules = data
+                .map((e) => Schedule.fromJson(e))
+                .where((schedule) => schedule.isConfirmed)
+                .toList();
             _isLoading = false;
           });
         }
@@ -41,43 +46,73 @@ class _StudentScheduleScreenState extends State<StudentScheduleScreen> {
     }
   }
 
+  Map<String, List<Schedule>> _groupSchedulesBySemester() {
+    final groups = <String, List<Schedule>>{};
+    for (final schedule in _schedules) {
+      final subject = schedule.subject;
+      final namHoc = subject?.namHoc?.isNotEmpty == true
+          ? subject!.namHoc!
+          : 'Chưa rõ năm học';
+      final tenHocKy = subject?.tenHocKy?.isNotEmpty == true
+          ? subject!.tenHocKy!
+          : 'Chưa rõ học kỳ';
+      final key = '$namHoc - $tenHocKy';
+      groups.putIfAbsent(key, () => []).add(schedule);
+    }
+    return groups;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lịch Học Của Tôi'),
-        backgroundColor: AppTheme.primaryBlue,
-        foregroundColor: Colors.white,
-      ),
+      appBar: widget.showAppBar
+          ? AppBar(
+              title: const Text('Lịch Học Của Tôi'),
+              backgroundColor: AppTheme.primaryBlue,
+              foregroundColor: Colors.white,
+            )
+          : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _schedules.isEmpty
-              ? const Center(child: Text('Chưa có lịch học nào.'))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _schedules.length,
-                  itemBuilder: (context, index) {
-                    final schedule = _schedules[index];
-                    return Card(
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      child: ListTile(
+          ? const Center(child: Text('Chưa có lịch học nào.'))
+          : ListView(
+              padding: const EdgeInsets.all(16),
+              children: _groupSchedulesBySemester().entries.map((entry) {
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  child: ExpansionTile(
+                    initiallyExpanded: true,
+                    title: Text(
+                      entry.key,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    children: entry.value.map((schedule) {
+                      return ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Colors.indigo.withOpacity(0.1),
-                          child: const Icon(Icons.calendar_month, color: Colors.indigo),
+                          child: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.indigo,
+                          ),
                         ),
-                        title: Text('${schedule.thuTrongTuan} - ${schedule.caHoc}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        title: Text(
+                          '${schedule.thuTrongTuan} - ${schedule.caHoc}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         subtitle: Text(
                           'Môn: ${schedule.subject?.tenMonHoc ?? ''}\n'
                           'Thời gian: ${_formatDate(schedule.ngayBatDau)} - ${_formatDate(schedule.ngayKetThuc)}\n'
                           'Phòng: ${schedule.classroom?.tenPhong ?? ''} - Toà: ${schedule.classroom?.toaNha ?? ''}\n'
-                          'GV: ${schedule.lecturer?.hoTen ?? ''}'
+                          'GV: ${schedule.lecturer?.hoTen ?? ''}',
                         ),
                         isThreeLine: true,
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    }).toList(),
+                  ),
+                );
+              }).toList(),
+            ),
     );
   }
 

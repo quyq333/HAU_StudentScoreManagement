@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface StudentResultRepository extends JpaRepository<StudentResult, Integer> {
     List<StudentResult> findByStudent_MaSV(String maSV);
     List<StudentResult> findByStudent_MaSVAndSemester_Id(String maSV, Integer semesterId);
+    List<StudentResult> findByStudent_MaSVAndSubject_MaMonHocOrderByIdAsc(String maSV, String maMonHoc);
     Optional<StudentResult> findByStudentMaSVAndSubjectMaMonHoc(String maSV, String maMonHoc);
 
     @org.springframework.data.jpa.repository.Modifying

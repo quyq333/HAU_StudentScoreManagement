@@ -13,8 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -70,7 +72,31 @@ public class ScheduleRegistrationController {
                 return ResponseEntity.badRequest().body("Bạn đã đăng ký lịch học này rồi.");
             }
 
-            // 4. Kiểm tra xem sinh viên đã có điểm A môn này chưa
+            List<ScheduleRegistration> studentRegistrations = scheduleRegistrationRepository.findByStudentMaSV(maSV);
+
+            // 4. Kiểm tra xem sinh viên đã đăng ký lịch khác của cùng môn học chưa
+            boolean hasSameSubjectRegistration = studentRegistrations.stream()
+                    .map(ScheduleRegistration::getSchedule)
+                    .anyMatch(registeredSchedule -> isSameSubject(registeredSchedule, schedule));
+            if (hasSameSubjectRegistration) {
+                return ResponseEntity.badRequest().body("Bạn đã đăng ký một lịch học của môn này rồi.");
+            }
+
+            // 5. Kiểm tra trùng thời gian với các môn đã đăng ký
+            Optional<Schedule> conflictingSchedule = studentRegistrations.stream()
+                    .map(ScheduleRegistration::getSchedule)
+                    .filter(registeredSchedule -> !isSameSubject(registeredSchedule, schedule))
+                    .filter(registeredSchedule -> isScheduleTimeOverlapping(registeredSchedule, schedule))
+                    .findFirst();
+            if (conflictingSchedule.isPresent()) {
+                Schedule conflict = conflictingSchedule.get();
+                String subjectName = conflict.getSubject() != null
+                        ? conflict.getSubject().getTenMonHoc()
+                        : "môn học khác";
+                return ResponseEntity.badRequest().body("Trùng lịch với môn " + subjectName + " đã đăng ký.");
+            }
+
+            // 6. Kiểm tra xem sinh viên đã có điểm A môn này chưa
             String maMonHoc = schedule.getSubject().getMaMonHoc();
             Optional<StudentResult> resultOpt = studentResultRepository
                     .findByStudentMaSVAndSubjectMaMonHoc(maSV, maMonHoc);
@@ -93,6 +119,39 @@ public class ScheduleRegistrationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Có lỗi xảy ra: " + e.getMessage());
         }
+    }
+
+    private boolean isSameSubject(Schedule first, Schedule second) {
+        if (first == null || second == null || first.getSubject() == null || second.getSubject() == null) {
+            return false;
+        }
+
+        return Objects.equals(first.getSubject().getMaMonHoc(), second.getSubject().getMaMonHoc());
+    }
+
+    private boolean isScheduleTimeOverlapping(Schedule first, Schedule second) {
+        if (first == null || second == null) {
+            return false;
+        }
+
+        if (!Objects.equals(first.getThuTrongTuan(), second.getThuTrongTuan())) {
+            return false;
+        }
+
+        if (!Objects.equals(first.getCaHoc(), second.getCaHoc())) {
+            return false;
+        }
+
+        LocalDate firstStart = first.getNgayBatDau();
+        LocalDate firstEnd = first.getNgayKetThuc();
+        LocalDate secondStart = second.getNgayBatDau();
+        LocalDate secondEnd = second.getNgayKetThuc();
+
+        if (firstStart == null || firstEnd == null || secondStart == null || secondEnd == null) {
+            return true;
+        }
+
+        return !firstStart.isAfter(secondEnd) && !secondStart.isAfter(firstEnd);
     }
 
     @DeleteMapping("/cancel")

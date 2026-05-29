@@ -47,6 +47,9 @@ public class StudentResult {
     @Column(name = "DiemTongKet")
     private Double diemTongKet;
 
+    @Column(name = "DiemTongKetHienThi", columnDefinition = "NVARCHAR(100)")
+    private String diemTongKetHienThi;
+
     @Column(name = "DiemChu", length = 5)
     private String diemChu;
 

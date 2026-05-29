@@ -19,18 +19,18 @@ class AppTheme {
         background: backgroundLight,
         error: const Color(0xFFE53935),
       ),
-      textTheme: GoogleFonts.interTextTheme(),
+      textTheme: GoogleFonts.notoSansTextTheme(),
       scaffoldBackgroundColor: backgroundLight,
       appBarTheme: AppBarTheme(
         centerTitle: true,
         elevation: 0,
         backgroundColor: primaryBlue,
         foregroundColor: Colors.white,
-        titleTextStyle: GoogleFonts.inter(
+        titleTextStyle: GoogleFonts.notoSans(
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
+          letterSpacing: 0,
+        ).copyWith(fontFamilyFallback: const ['Roboto', 'Arial', 'sans-serif']),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -49,14 +49,15 @@ class AppTheme {
         shadowColor: Colors.black.withOpacity(0.1),
         color: Colors.white,
         surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 24,
+          vertical: 18,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: Colors.grey.shade200),

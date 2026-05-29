@@ -30,13 +30,25 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
 
   void _showResultDialog([Map<String, dynamic>? result]) {
     final isEditing = result != null;
-    final svController = TextEditingController(text: result?['student']?['maSV']);
-    final mhController = TextEditingController(text: result?['subject']?['maMonHoc']);
-    final hkController = TextEditingController(text: result?['semester']?['id']?.toString());
-    
-    final ccController = TextEditingController(text: result?['diemChuyenCan']?.toString());
-    final ktController = TextEditingController(text: result?['diemKiemTra']?.toString());
-    final thiController = TextEditingController(text: result?['diemThi']?.toString());
+    final svController = TextEditingController(
+      text: result?['student']?['maSV'],
+    );
+    final mhController = TextEditingController(
+      text: result?['subject']?['maMonHoc'],
+    );
+    final hkController = TextEditingController(
+      text: result?['semester']?['id']?.toString(),
+    );
+
+    final ccController = TextEditingController(
+      text: result?['diemChuyenCan']?.toString(),
+    );
+    final ktController = TextEditingController(
+      text: result?['diemKiemTra']?.toString(),
+    );
+    final thiController = TextEditingController(
+      text: result?['diemThi']?.toString(),
+    );
 
     showDialog(
       context: context,
@@ -47,18 +59,42 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (!isEditing) ...[
-                TextField(controller: svController, decoration: const InputDecoration(labelText: 'Mã SV')),
-                TextField(controller: mhController, decoration: const InputDecoration(labelText: 'Mã Môn Học')),
-                TextField(controller: hkController, decoration: const InputDecoration(labelText: 'ID Học Kỳ')),
+                TextField(
+                  controller: svController,
+                  decoration: const InputDecoration(labelText: 'Mã SV'),
+                ),
+                TextField(
+                  controller: mhController,
+                  decoration: const InputDecoration(labelText: 'Mã Môn Học'),
+                ),
+                TextField(
+                  controller: hkController,
+                  decoration: const InputDecoration(labelText: 'ID Học Kỳ'),
+                ),
               ],
-              TextField(controller: ccController, decoration: const InputDecoration(labelText: 'Điểm CC'), keyboardType: TextInputType.number),
-              TextField(controller: ktController, decoration: const InputDecoration(labelText: 'Điểm KT'), keyboardType: TextInputType.number),
-              TextField(controller: thiController, decoration: const InputDecoration(labelText: 'Điểm Thi'), keyboardType: TextInputType.number),
+              TextField(
+                controller: ccController,
+                decoration: const InputDecoration(labelText: 'Điểm CC'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: ktController,
+                decoration: const InputDecoration(labelText: 'Điểm KT'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: thiController,
+                decoration: const InputDecoration(labelText: 'Điểm Thi'),
+                keyboardType: TextInputType.number,
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Hủy'),
+          ),
           ElevatedButton(
             onPressed: () async {
               double? cc = double.tryParse(ccController.text);
@@ -77,19 +113,20 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
                 data['idHocKy'] = int.tryParse(hkController.text) ?? 1;
               }
 
-              bool success;
-              if (isEditing) {
-                success = await _apiService.updateResult(result['id'], data);
-              } else {
-                success = await _apiService.createResult(data);
-              }
+              final String? error = isEditing
+                  ? await _apiService.updateResult(result['id'], data)
+                  : await _apiService.createResult(data);
 
-              if (success) {
+              if (error == null) {
                 if (context.mounted) Navigator.pop(context);
                 _loadResults();
               } else {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Lỗi: Sai mã SV, Môn học hoặc Học kỳ!')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(error),
+                    ),
+                  );
                 }
               }
             },
@@ -122,7 +159,10 @@ class _ManageResultsScreenState extends State<ManageResultsScreen> {
                 return ListTile(
                   leading: CircleAvatar(child: Text(result['diemChu'] ?? '-')),
                   title: Text('$sv - $mh'),
-                  subtitle: Text('CC: ${result['diemChuyenCan']} | KT: ${result['diemKiemTra']} | Thi: ${result['diemThi']} \nTổng: ${result['diemTongKet']} | Hệ 4: ${result['diemHe4'] ?? '-'}'),
+                  subtitle: Text(
+                    'CC: ${result['diemChuyenCan']} | KT: ${result['diemKiemTra']} | Thi: ${result['diemThi']} \n'
+                    'Tổng: ${result['diemTongKetHienThi'] ?? result['diemTongKet']} | Hệ 4: ${result['diemHe4'] ?? '-'}',
+                  ),
                   isThreeLine: true,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
